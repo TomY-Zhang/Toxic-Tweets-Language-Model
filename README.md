@@ -9,6 +9,8 @@ app_file: app.py
 pinned: false
 ---
 
+[Hugging Face Repo URL](https://huggingface.co/spaces/TomYZhang/toxic-tweets)
+
 ## Requirements
 
 - `Docker`
