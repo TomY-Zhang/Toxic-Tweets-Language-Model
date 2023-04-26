@@ -100,7 +100,7 @@ def main():
                 'Prediction Score': pred_score,
                 'Toxicity Class': toxic_class,
                 'Toxicity Score': toxic_score
-            }))
+            }.items()))
     
     st.subheader("Sample observations and predictions")
     st.dataframe(sample_data)
