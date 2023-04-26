@@ -1,4 +1,6 @@
-FROM node:alpine
+FROM pytorch/pytorch
 COPY . /app
 WORKDIR /app
-CMD node app.js
+RUN pip install -r requirements.txt
+EXPOSE 8501
+ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]

@@ -1,21 +1,41 @@
-# Installation
+---
+title: Toxic Tweets Language Model
+emoji: 📚
+colorFrom: green
+colorTo: purple
+sdk: streamlit
+sdk_version: 1.17.0
+app_file: app.py
+pinned: false
+---
 
-## Docker
-1. Go to the [Docker website](https://www.docker.com/products/docker-desktop/) and install the latest version of Docker Desktop compatible with your operating system. For reference, I am using Docker Desktop v4.17.0 for MacOS.
+[Hugging Face Repo URL](https://huggingface.co/spaces/TomYZhang/toxic-tweets)
 
-2. To ensure that Docker is properly installed, open your terminal and run `docker version`.<br>
-This will display the properties of Docker version installed.
+## Requirements
 
-3. Navigate to your project directory and run `touch Dockerfile` to create a Dockerfile.
+- `Docker`
+- `python 3.9`
+- `streamlit==1.21.0`
+- `torch==2.0.0`
+- `transformers==4.27.4`
 
-4. Run `touch app.js` to create a JavaScript file. Open it with your preferred text editor or IDE and enter `console.log('Hello Docker')`.
+## Docker Setup
+1. Navigate to the [Docker website](https://www.docker.com/products/docker-desktop/) and install the latest version of Docker Desktop compatible with your operating system.
 
-5. Open the Dockerfile.<br>
-a. Enter `FROM node:alpine` on the first line. This command specifies `node:alpine` as the base image used to construct a Docker image.<br>
-b. Enter `COPY . /app` on the second line. When a Docker container is created, all files in the project directory (aside from the Dockerfile) will be copied into the `/app` directory of the container.<br>
-c. Enter `WORKDIR /app` on the third line to specify the default woring directory of the Docker container.<br>
-d. Enter `CMD node app.js` on the fourth line. When the Docker container is created, it wil automatically execute this command.<br>
+2. To ensure that Docker is properly installed, open your terminal and execute `docker version`.<br> This will display the properties of Docker version installed.
 
-6. To build the Docker image, run `docker build -t hello-docker .` in the terminal.
+3. Download the Pytorch image from [Docker Hub](https://hub.docker.com/r/pytorch/pytorch).
 
-7. Execute `docker run hello-docker` to create a container from the `hello-docker` image.
+4. To build the Docker image, execute `docker build -t streamlit .` in the terminal.
+
+5. Execute `docker run -p 8501:8501 streamlit` to create a container from the `streamlit` image.
+
+6. View the Streamlit app at http://0.0.0.0:8501
+
+## Pretrained Models
+- [RoBERTa](https://huggingface.co/docs/transformers/main/en/model_doc/roberta#transformers.RobertaForSequenceClassification)
+
+## Deploying the App
+1. Execute `docker build -t streamlit .` in the terminal to build a Docker image named `streamlit`.
+
+2. Execute `docker run -p 8501:8501 streamlit` to create a container from the `streamlit` image. The webapp can be accessed at http://0.0.0.0:8501.
