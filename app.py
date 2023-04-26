@@ -96,10 +96,10 @@ def main():
             pred_class, pred_score, toxic_class, toxic_score = predict(text, model, tokenizer)
             
             st.write(pd.DataFrame({
-                'Predicted class': pred_class,
-                'Prediction Score': pred_score,
-                'Toxicity Class': toxic_class,
-                'Toxicity Score': toxic_score
+                'Predicted class': [pred_class,],
+                'Prediction Score': [pred_score,],
+                'Toxicity Class': [toxic_class,],
+                'Toxicity Score': [toxic_score,],
             }.items()))
     
     st.subheader("Sample observations and predictions")
