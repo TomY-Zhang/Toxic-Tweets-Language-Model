@@ -1,3 +1,4 @@
 __pycache__
+.DS_Store
 *train_test
 !*train_test/toxic-comments/test
