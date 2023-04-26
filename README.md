@@ -22,7 +22,6 @@ pinned: false
 
 - `Docker`
 - `python 3.9`
-- `numpy==1.22.4`
 - `pandas==2.0.1`
 - `scikit-learn==1.0.2`
 - `streamlit==1.21.0`
