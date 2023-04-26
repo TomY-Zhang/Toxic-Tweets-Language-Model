@@ -94,8 +94,8 @@ def main():
             tokenizer = models[selected_model]["tokenizer"]
             model = models[selected_model]["model"]
             pred_class, pred_score, toxic_class, toxic_score = predict(text, model, tokenizer)
-
-            st.write(pd.Dataframe({
+            
+            st.write(pd.DataFrame({
                 'Predicted class': pred_class,
                 'Prediction Score': pred_score,
                 'Toxicity Class': toxic_class,
