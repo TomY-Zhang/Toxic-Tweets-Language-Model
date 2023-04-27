@@ -27,7 +27,7 @@ def streamlit_app(model, tokenizer, model_dict, sample):
     welc.title("👋 Welcome to TTSA!")
     welc.markdown(
         """
-        TTSA (Toxic Tweet Sentiment Analysis) is a BERT-based language learning model that classifies the toxicity of a text input. Select the **Sentiment Analysis** tab to try it out!
+        TTSA (Toxic Tweet Sentiment Analysis) is a BERT-based language learning model that classifies the toxicity of a text input. Select the **Sentiment Analysis tab** to try it out!
 
         ### About
         TTSA performs multi-label classification with six labels $-$ **Toxic**, **Severe** **Toxic**, **Obscene**, **Threat**, **Insult**, & **Identity Hate**. The Obscene, Threat, Insult, & Identity Hate labels are treated as the four types of toxicity.
