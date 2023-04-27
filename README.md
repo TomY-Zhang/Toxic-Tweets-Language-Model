@@ -9,12 +9,21 @@ app_file: app.py
 pinned: false
 ---
 
-[Hugging Face Repo URL](https://huggingface.co/spaces/TomYZhang/toxic-tweets)
+## Hugging Face Space
+- [Hugging Face Space URL](https://huggingface.co/spaces/TomYZhang/toxic-tweets)
+
+## Pretrained Models
+- [DistilBERT](https://huggingface.co/docs/transformers/model_doc/distilbert#overview)
+
+## Data Set
+- [Jigsaw Toxic Comment Classification Challenge](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge)
 
 ## Requirements
 
 - `Docker`
 - `python 3.9`
+- `pandas==2.0.1`
+- `scikit-learn==1.0.2`
 - `streamlit==1.21.0`
 - `torch==2.0.0`
 - `transformers==4.27.4`
@@ -31,9 +40,6 @@ pinned: false
 5. Execute `docker run -p 8501:8501 streamlit` to create a container from the `streamlit` image.
 
 6. View the Streamlit app at http://0.0.0.0:8501
-
-## Pretrained Models
-- [RoBERTa](https://huggingface.co/docs/transformers/main/en/model_doc/roberta#transformers.RobertaForSequenceClassification)
 
 ## Deploying the App
 1. Execute `docker build -t streamlit .` in the terminal to build a Docker image named `streamlit`.
