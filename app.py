@@ -1,76 +1,86 @@
 # flake8: noqa
-import os, csv
-import numpy as np
+import os
 import pandas as pd
-import random as rand
 import streamlit as st
+from sample_generator import get_sample_data, predict
 from transformers import (
     AutoConfig,
     AutoTokenizer,
     AutoModelForSequenceClassification
 )
 
-def generate_sample_data(fname, model, tokenizer, num_samples):
-    test_path = './train_test/toxic-comments/test'
 
-    total_examples = 0
-    with open(f'{test_path}/metadata.txt', 'r') as meta:
-        total_examples = int(meta.read())
-
-    start = rand.randint(0, total_examples - num_samples)
-    stop = start + num_samples
-
-    texts = []
-    for i in range(start, stop):
-        with open(f'{test_path}/texts/{i}.txt') as text_f:
-            texts.append(text_f.read())
-
-    with open(fname, 'w') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Text', 'Predicted Class', 'Prediction Score', 'Toxicity Type', 'Toxicity Score'])
-
-        for text in texts:
-            pred_class, pred_score, toxic_class, toxic_score = predict(text, model, tokenizer)
-            writer.writerow([text, pred_class, pred_score, toxic_class, toxic_score])
+def fetch_model(cache_dir):
+    """
+    Fetches the model and tokenizer from the cache directory
+    """
+    tokenizer = AutoTokenizer.from_pretrained(cache_dir)
+    config = AutoConfig.from_pretrained(cache_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(cache_dir, config=config)
+    return tokenizer, model
 
 
-def predict(text, model, tokenizer):
-    inputs = tokenizer(
-        text,
-        truncation=True,
-        padding="max_length",
-        max_length=512,
-        return_tensors="pt",
-        return_token_type_ids=False
+def streamlit_app(model, tokenizer, model_dict, sample):
+    # Create two tabs
+    welc, sent = st.tabs(["Welcome", "Sentiment Analysis"])
+
+    welc.title("👋 Welcome to TTSA!")
+    welc.markdown(
+        """
+        TTSA (Toxic Tweet Sentiment Analysis) is a BERT-based language learning model that classifies the toxicity of a text input. Select the **Sentiment Analysis** tab to try it out!
+
+        ### About
+        TTSA performs multi-label classification with six labels $-$ **Toxic**, **Severe** **Toxic**, **Obscene**, **Threat**, **Insult**, & **Identity Hate**. The Obscene, Threat, Insult, & Identity Hate labels are treated as the four types of toxicity.
+
+        For each input, TTSA assigns a score (0 to 1) for each of the labels. The label with the highest score is the *Predicted Class* and the highest-scoring toxicity type is the *Highest Toxicity Class*.
+        
+        ### Resources Used
+        Pretrained Base Model $-$ [DistilBERT](https://huggingface.co/docs/transformers/model_doc/distilbert#overview)  
+        Data Set $-$ [Jigsaw Toxic Comment Classification Challenge](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge)
+
+        ### Source Code
+        - [Github Repo](https://github.com/TomY-Zhang/Toxic-Tweets-Language-Model)
+        - [Hugging Face Space](https://huggingface.co/spaces/TomYZhang/toxic-tweets/tree/main)
+        """
     )
+
+    sent.title("Toxic Tweet Sentiment Analysis")
+    selected_model = sent.selectbox('Select a learning model', ('distilbert-base-uncased',))
+
+    # Form for user to enter text
+    with sent.form("Sample Form"):
+        text = st.text_input("Enter text here", "What are you, stupid?")
+
+        # When submitted, the model predicts scores for the input text
+        submitted = st.form_submit_button("Analyze")
+        if submitted:
+            tokenizer = model_dict[selected_model]["tokenizer"]
+            model = model_dict[selected_model]["model"]
+            pred_class, pred_score, toxic_class, toxic_score = predict(text, model, tokenizer)
+
+            # Display the results in a table
+            st.write(pd.DataFrame({
+                'Predicted class': [pred_class,],
+                'Prediction Score': [pred_score,],
+                'Highest Toxicity Class': [toxic_class,],
+                'Toxicity Score': [toxic_score,],
+            }))
     
-    logits = model(**inputs).logits
-    pred_class, pred_score = get_class_and_score(logits, model.config.id2label, 0)
-    toxic_class, toxic_score = get_class_and_score(logits, model.config.id2label, 2)
+    sent.markdown("## Sample Data")
+    os.environ["sample_size"] = str(sent.slider("Rows to Display", min_value=10, max_value=len(sample), value=10, step=1))
 
-    return pred_class, pred_score, toxic_class, toxic_score
+    sample_size = os.environ.get("sample_size")
+    sample_size = int(sample_size) if sample_size is not None else 10
 
-
-def get_class_and_score(logits, id2label, start):
-    logits = logits[:, start:]
-    pred_id = logits.argmax().item()
-
-    sigmoid = lambda x: 1 / (1 + np.exp(-x))
-    predictions = sigmoid(logits.detach().numpy()[0])
-
-    pred_score = predictions[pred_id]
-    pred_class = id2label[pred_id + start]
-
-    return pred_class, pred_score
+    # Display a table of sample data with the desired number of rows
+    sent.write(sample.sample(n=sample_size).reset_index(drop=True))
 
 
 def main():
     cache_dir = './saved_model'
-    tokenizer = AutoTokenizer.from_pretrained(cache_dir)
-    config = AutoConfig.from_pretrained(cache_dir)
-    model = AutoModelForSequenceClassification.from_pretrained(cache_dir, config=config)
+    tokenizer, model = fetch_model(cache_dir)
 
-    models = {
+    model_dict = {
         'distilbert-base-uncased' : {
             "tokenizer" : tokenizer,
             "model" : model
@@ -78,32 +88,11 @@ def main():
     }
 
     fname = "sample.csv"
-    if not os.path.exists(fname):
-        generate_sample_data(fname, model, tokenizer, 50)
-    
-    sample_data = pd.read_csv(fname)
+    sample = get_sample_data(fname, model, tokenizer, 200)
 
-    st.title("Toxic Comment Sentiment Analyzer")
-    selected_model = st.selectbox('Select a learning model', ('distilbert-base-uncased',))
+    streamlit_app(model, tokenizer, model_dict, sample)
 
-    with st.form("Sample Form"):
-        text = st.text_input("Enter text here", "What are you, stupid?")
-
-        submitted = st.form_submit_button("Submit")
-        if submitted:
-            tokenizer = models[selected_model]["tokenizer"]
-            model = models[selected_model]["model"]
-            pred_class, pred_score, toxic_class, toxic_score = predict(text, model, tokenizer)
-
-            st.write(pd.DataFrame({
-                'Predicted class': [pred_class,],
-                'Prediction Score': [pred_score,],
-                'Toxicity Class': [toxic_class,],
-                'Toxicity Score': [toxic_score,],
-            }))
-    
-    st.subheader("Sample observations and predictions")
-    st.dataframe(sample_data)
 
 if __name__ == '__main__':
     main()
+
