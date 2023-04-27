@@ -1,6 +1,5 @@
 __pycache__
 .DS_Store
-train_test*
-!train_test/toxic-comments/test_label.csv
-!train_test/toxic-comments/test.csv
-!train_test/toxic-comments/train.csv
+train_test/
+!train_test/load_model.py
+!train_test/model.py
