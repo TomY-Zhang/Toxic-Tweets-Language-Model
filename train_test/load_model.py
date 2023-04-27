@@ -2,6 +2,15 @@
 import os, csv, math, time
 from model import ToxicCommentModel
 
+TRAIN_PATH = "toxic-comments/train.csv"
+TEST_TEXT_PATH = "toxic-comments/test.csv"
+TEST_LABEL_PATH = "toxic-comments/test_labels.csv"
+
+MODEL_SAVE_DIR = '../saved_model'
+TRAIN_SAVE_DIR = 'toxic-comments/train'
+TEST_SAVE_DIR = 'toxic-comments/test'
+
+CLASSNAMES = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
 
 def parse_train_data(train_path, save_dir, classnames):
     """
@@ -114,18 +123,8 @@ def train_model(model, batch_start, batch_stop, train, test):
 
 
 def main():
-    # Paths of csv files
-    train_path = "toxic-comments/train.csv"
-    test_text_path = "toxic-comments/test.csv"
-    test_label_path = "toxic-comments/test_labels.csv"
-
-    # Specify
-    model_save_dir = '../saved_model'
-    train_save_dir = 'toxic-comments/train'
-    test_save_dir = 'toxic-comments/test'
-
     # Create cache directories for training and testing data
-    caches = [train_save_dir, test_save_dir]
+    caches = [TRAIN_SAVE_DIR, TEST_SAVE_DIR]
     for cache in caches:
         if not os.path.exists(f'{cache}'):
             os.makedirs(f'{cache}')
@@ -133,26 +132,25 @@ def main():
             os.makedirs(f'{cache}/labels')
 
     # Fetch model from cache
-    classnames = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
-    model = ToxicCommentModel(save_dir=model_save_dir, classes=classnames)
+    model = ToxicCommentModel(save_dir=MODEL_SAVE_DIR, classes=CLASSNAMES)
 
-    parse_train_data(train_path, train_save_dir, classnames)
-    parse_test_data(test_text_path, test_label_path, test_save_dir, classnames)
-
+    parse_train_data(TRAIN_PATH, TRAIN_SAVE_DIR, CLASSNAMES)
+    parse_test_data(TEST_TEXT_PATH, TEST_LABEL_PATH, TEST_SAVE_DIR, CLASSNAMES)
+    
     # Split data into batches, then train the model
     num_batches = 20
-    with open(f"{train_save_dir}/metadata.txt", 'r') as train_meta, \
-        open(f"{test_save_dir}/metadata.txt", 'r') as test_meta:
+    with open(f"{TRAIN_SAVE_DIR}/metadata.txt", 'r') as train_meta, \
+        open(f"{TEST_SAVE_DIR}/metadata.txt", 'r') as test_meta:
         
         train, test = {}, {}
 
         train["examples"] = int(train_meta.read())
         train["batch_size"] = math.ceil(train["examples"] / num_batches)
-        train["save_dir"] = train_save_dir
+        train["save_dir"] = TRAIN_SAVE_DIR
 
         test["examples"] = int(test_meta.read())
         test["batch_size"] = test["examples"] // num_batches
-        test["save_dir"] = test_save_dir
+        test["save_dir"] = TEST_SAVE_DIR
         
         batch_start = 0
         batch_stop = 20

@@ -1,0 +1,6 @@
+__pycache__
+.DS_Store
+train_test/
+!train_test/toxic-comments/examples.zip
+!train_test/load_model.py
+!train_test/model.py
