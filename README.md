@@ -9,6 +9,11 @@ app_file: app.py
 pinned: false
 ---
 
+## Model Set-Up
+Parsed train and test files and cached them locally. Loaded cached test data in batches to limit memory usage. Training was conducted in sub-batches of each batch, with 5 epochs per sub-batch. 
+
+Test Accuracy: 0.51237 (average per batch)
+
 ## Hugging Face Space
 - [Hugging Face Space URL](https://huggingface.co/spaces/TomYZhang/toxic-tweets)
 
